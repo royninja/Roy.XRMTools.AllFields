@@ -119,20 +119,78 @@ namespace Roy.XRMTools.AllFields
         /// </summary>
         private void getAllEntities()
         {
-            RetrieveAllEntitiesRequest retrieveAllEntitiesRequest = new RetrieveAllEntitiesRequest();
-            retrieveAllEntitiesRequest.EntityFilters = EntityFilters.Attributes;
-            retrieveAllEntitiesRequest.RetrieveAsIfPublished = true;
-
-            RetrieveAllEntitiesResponse allEntitiesResponse = (RetrieveAllEntitiesResponse)Service.Execute(retrieveAllEntitiesRequest);
-
-            List<string> listEntities = new List<string>();
-            if(allEntitiesResponse.EntityMetadata.Length > 0)
+            WorkAsync(new WorkAsyncInfo
             {
-                foreach(EntityMetadata entity in allEntitiesResponse.EntityMetadata)
+                Message = "Retrieving Entities from D365 CRM",
+                Work = (worker, args) =>
                 {
-                    listEntities.Add(entity.LogicalName.ToString());
+                    RetrieveAllEntitiesRequest retrieveAllEntitiesRequest = new RetrieveAllEntitiesRequest();
+                    retrieveAllEntitiesRequest.EntityFilters = EntityFilters.Attributes;
+                    retrieveAllEntitiesRequest.RetrieveAsIfPublished = true;
+
+                    RetrieveAllEntitiesResponse allEntitiesResponse = (RetrieveAllEntitiesResponse)Service.Execute(retrieveAllEntitiesRequest);
+
+                    List<string> listEntities = new List<string>();
+                    if (allEntitiesResponse.EntityMetadata.Length > 0)
+                    {
+                        foreach (EntityMetadata entity in allEntitiesResponse.EntityMetadata)
+                        {
+                            listEntities.Add(entity.LogicalName.ToString());
+                        }
+                    }
+                    args.Result = listEntities;
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        cmbEntity.DataSource = args.Result;
+                    }
                 }
-            }
+            });
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnGetRecord_Click(object sender, EventArgs e)
+        {
+            ExecuteMethod(getRecordsData);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        private void getRecordsData()
+        {
+            string logicalname = cmbEntity.SelectedItem.ToString();
+            string recordId = txtGuid.Text;
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Retrieving Entities from D365 CRM",
+                Work = (worker, args) =>
+                {
+                    if(recordId != null & recordId != string.Empty && logicalname != null && logicalname != string.Empty)
+                    {
+
+                    }
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        cmbEntity.DataSource = args.Result;
+                    }
+                }
+            });
         }
     }
 }
