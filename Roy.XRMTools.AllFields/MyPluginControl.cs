@@ -112,7 +112,7 @@ namespace Roy.XRMTools.AllFields
         /// <param name="e"></param>
         private void btnGetEntities_Click(object sender, EventArgs e)
         {
-
+            ExecuteMethod(getAllEntities);
         }
         /// <summary>
         /// 
@@ -125,7 +125,14 @@ namespace Roy.XRMTools.AllFields
 
             RetrieveAllEntitiesResponse allEntitiesResponse = (RetrieveAllEntitiesResponse)Service.Execute(retrieveAllEntitiesRequest);
 
-
+            List<string> listEntities = new List<string>();
+            if(allEntitiesResponse.EntityMetadata.Length > 0)
+            {
+                foreach(EntityMetadata entity in allEntitiesResponse.EntityMetadata)
+                {
+                    listEntities.Add(entity.LogicalName.ToString());
+                }
+            }
         }
     }
 }
